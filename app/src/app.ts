@@ -1,33 +1,39 @@
-import type { Database } from "sql.js";
-import type { SqlJsStatic } from "sql.js";
-import { REPORTS, MENU_ORDER, all, defaultParams, unitChoices } from "./reports.ts";
-import type { Option, Params, Report, Row, Section } from "./reports.ts";
-import { formatCell, toCsv } from "./format.ts";
+import type { Database, SqlJsStatic } from "sql.js";
+import { cellValue, formatCell, toCsv } from "./format.ts";
+import type { Option, Params, Report, Section } from "./reports.ts";
+import { all, defaultParams, MENU_ORDER, REPORTS, unitChoices } from "./reports.ts";
 
 declare const initSqlJs: (config?: {
   locateFile?: (file: string) => string;
 }) => Promise<SqlJsStatic>;
 
-const $ = <T extends HTMLElement = HTMLElement>(id: string): T => document.getElementById(id) as T;
+function $<T extends HTMLElement = HTMLElement>(id: string): T {
+  const el = document.getElementById(id);
+  if (!el) {
+    throw new Error(`Missing element #${id}`);
+  }
+  return el as T;
+}
 const ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
-const esc = (s: unknown): string => String(s ?? "").replace(/[&<>"]/g, (c) => ESC[c]);
+const esc = (s: unknown): string => String(s ?? "").replace(/[&<>"]/g, (c) => ESC[c] ?? c);
 const TABLES = ["UNITDATA", "UNITLOC", "INVENTOR", "TOE", "WPNS", "AIR", "REFERENC", "BIBLIOG"];
 const PAGE = 100;
 let db: Database;
 let units: string[] = [];
 
 async function start(): Promise<void> {
-  const SQL = await initSqlJs({ locateFile: (f) => `dist/${f}` });
+  const Sql = await initSqlJs({ locateFile: (f) => `dist/${f}` });
   const url = new URLSearchParams(location.search).get("db") || "../data/kosave.sqlite";
   const res = await fetch(url);
-  if (!res.ok)
+  if (!res.ok) {
     throw new Error(
       `Could not load ${url} (${res.status}). Run "dvc repro" and serve the repo root.`,
     );
-  db = new SQL.Database(new Uint8Array(await res.arrayBuffer()));
+  }
+  db = new Sql.Database(new Uint8Array(await res.arrayBuffer()));
   units = unitChoices(db);
-  $("status").textContent =
-    `${all(db, "select count(*) c from unitdata")[0].c.toLocaleString()} unit-day records`;
+  const [count] = all<{ c: number }>(db, "select count(*) c from unitdata");
+  $("status").textContent = `${(count?.c ?? 0).toLocaleString()} unit-day records`;
   buildMenu();
   buildTables();
 }
@@ -37,19 +43,53 @@ function buildMenu(): void {
   const menu = $("menu");
   for (const group of MENU_ORDER) {
     const items = REPORTS.filter((r) => r.menu === group);
-    if (!items.length) continue;
+    if (items.length === 0) {
+      continue;
+    }
     menu.insertAdjacentHTML("beforeend", `<h2>${esc(group)}</h2>`);
     for (const r of items) {
       const b = document.createElement("button");
       b.innerHTML = `${esc(r.title)} <small>${r.id}</small>`;
       b.onclick = () => {
-        document.querySelectorAll("#menu button").forEach((x) => x.classList.remove("active"));
+        for (const x of document.querySelectorAll("#menu button")) {
+          x.classList.remove("active");
+        }
         b.classList.add("active");
         openReport(r);
       };
       menu.append(b);
     }
   }
+}
+
+function makeInput(
+  p: Report["params"][number],
+  defaults: Params,
+): HTMLInputElement | HTMLSelectElement {
+  if (p.type === "select" || p.type === "unit") {
+    const select = document.createElement("select");
+    const opts: Option[] =
+      p.type === "unit" ? units.map((u) => ({ value: u, label: u })) : (p.options ?? []);
+    select.innerHTML = opts
+      .map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`)
+      .join("");
+    select.value = String(defaults[p.key]);
+    return select;
+  }
+  const input = document.createElement("input");
+  input.type = p.type === "bool" ? "checkbox" : p.type === "date" ? "date" : "text";
+  if (p.min) {
+    input.min = p.min;
+  }
+  if (p.max) {
+    input.max = p.max;
+  }
+  if (p.type === "bool") {
+    input.checked = !!defaults[p.key];
+  } else {
+    input.value = String(defaults[p.key]);
+  }
+  return input;
 }
 
 function openReport(report: Report): void {
@@ -60,28 +100,12 @@ function openReport(report: Report): void {
   for (const p of report.params) {
     const label = document.createElement("label");
     label.textContent = p.label;
-    let input: HTMLInputElement | HTMLSelectElement;
-    if (p.type === "select" || p.type === "unit") {
-      input = document.createElement("select");
-      const opts: Option[] =
-        p.type === "unit" ? units.map((u) => ({ value: u, label: u })) : (p.options ?? []);
-      input.innerHTML = opts
-        .map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`)
-        .join("");
-    } else {
-      input = document.createElement("input");
-      (input as HTMLInputElement).type =
-        p.type === "bool" ? "checkbox" : p.type === "date" ? "date" : "text";
-      if (p.min) (input as HTMLInputElement).min = p.min;
-      if (p.max) (input as HTMLInputElement).max = p.max;
-    }
+    const input = makeInput(p, defaults);
     input.name = p.key;
     if (p.type === "bool") {
-      (input as HTMLInputElement).checked = !!defaults[p.key];
       label.className = "check";
       label.prepend(input);
     } else {
-      input.value = String(defaults[p.key]);
       label.append(input);
     }
     form.append(label);
@@ -115,8 +139,12 @@ function execute(report: Report): void {
       .map((n) => `<p>${esc(n)}</p>`)
       .join("");
     out.innerHTML = "";
-    res.sections.forEach((s) => out.append(renderSection(s, report.id)));
-    if (!res.sections.length) out.innerHTML = '<p class="hint">No rows.</p>';
+    for (const s of res.sections) {
+      out.append(renderSection(s, report.id));
+    }
+    if (res.sections.length === 0) {
+      out.innerHTML = '<p class="hint">No rows.</p>';
+    }
     $("status").textContent = `${report.id}: ${(performance.now() - t0).toFixed(0)} ms`;
   } catch (e) {
     $("notes").innerHTML = "";
@@ -130,10 +158,11 @@ function renderSection(s: Section, id: string): HTMLElement {
   const th = s.columns
     .map((c) => `<th class="${c.align === "r" ? "r" : ""}">${esc(c.label)}</th>`)
     .join("");
-  const cells = (r: Row) =>
+  const cells = (r: object) =>
     s.columns
       .map(
-        (c) => `<td class="${c.align === "r" ? "r" : ""}">${esc(formatCell(r[c.key], c.fmt))}</td>`,
+        (c) =>
+          `<td class="${c.align === "r" ? "r" : ""}">${esc(formatCell(cellValue(r, c.key), c.fmt))}</td>`,
       )
       .join("");
   const body =
@@ -142,31 +171,47 @@ function renderSection(s: Section, id: string): HTMLElement {
   const foot = s.total ? `<tfoot><tr>${cells(s.total)}</tr></tfoot>` : "";
   wrap.innerHTML = `${head}<div class="tools"><button type="button">Download CSV</button> <span class="hint">${s.rows.length.toLocaleString()} rows</span></div>
     <div class="scroll"><table><thead><tr>${th}</tr></thead><tbody>${body}</tbody>${foot}</table></div>`;
-  wrap.querySelector("button")!.onclick = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([toCsv(s)], { type: "text/csv" }));
-    a.download = `${id}${s.heading ? "-" + s.heading.replace(/\W+/g, "_") : ""}.csv`;
-    a.click();
-  };
+  const download = wrap.querySelector("button");
+  if (download) {
+    download.onclick = () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(s)], { type: "text/csv" }));
+      a.download = `${id}${s.heading ? `-${s.heading.replace(/\W+/g, "_")}` : ""}.csv`;
+      a.click();
+    };
+  }
   return wrap;
 }
 
 // ------------------------------------------------------------- browse
-let current: { table: string | null; offset: number; term: string } = {
-  table: null,
-  offset: 0,
-  term: "",
-};
+interface BrowseState {
+  table: string | null;
+  offset: number;
+  term: string;
+}
+/** A table row for the browse view; `rec` is the SQLite rowid, the other keys are columns. */
+interface BrowseRow {
+  rec: number;
+  [column: string]: unknown;
+}
+interface TableColumn {
+  name: string;
+  type: string;
+}
+
+let current: BrowseState = { table: null, offset: 0, term: "" };
 
 function buildTables(): void {
   const box = $("tables");
   box.insertAdjacentHTML("beforeend", "<h2>Tables</h2>");
   for (const t of TABLES) {
-    const count = all(db, `select count(*) c from ${t}`)[0].c;
+    const [row] = all<{ c: number }>(db, `select count(*) c from ${t}`);
     const b = document.createElement("button");
-    b.innerHTML = `${t} <small>${count.toLocaleString()}</small>`;
+    b.innerHTML = `${t} <small>${(row?.c ?? 0).toLocaleString()}</small>`;
     b.onclick = () => {
-      box.querySelectorAll("button").forEach((x) => x.classList.remove("active"));
+      for (const x of box.querySelectorAll("button")) {
+        x.classList.remove("active");
+      }
       b.classList.add("active");
       current = { table: t, offset: 0, term: $<HTMLInputElement>("search").value };
       browse();
@@ -179,33 +224,38 @@ function buildTables(): void {
   $<HTMLInputElement>("search").oninput = () => {
     current.term = $<HTMLInputElement>("search").value;
     current.offset = 0;
-    if (current.table) browse();
+    if (current.table) {
+      browse();
+    }
   };
 }
 
 function browse(): void {
   const { table, offset, term } = current;
-  if (!table) return;
-  const cols = all(db, `pragma table_info(${table})`);
+  if (!table) {
+    return;
+  }
+  const cols = all<TableColumn>(db, `pragma table_info(${table})`);
   const textCols = cols.filter((c) => c.type === "TEXT").map((c) => c.name);
   const where =
-    term && textCols.length ? "where " + textCols.map((c) => `"${c}" like ?`).join(" or ") : "";
+    term && textCols.length > 0 ? `where ${textCols.map((c) => `"${c}" like ?`).join(" or ")}` : "";
   const params = term ? textCols.map(() => `%${term}%`) : [];
-  const total = all(db, `select count(*) c from ${table} ${where}`, params)[0].c;
+  const [totalRow] = all<{ c: number }>(db, `select count(*) c from ${table} ${where}`, params);
+  const total = totalRow?.c ?? 0;
   const shown = cols.slice(0, 8);
-  const rows = all(
+  const rows = all<BrowseRow>(
     db,
-    `select rowid as _rec, ${shown.map((c) => `"${c.name}"`).join(", ")} from ${table} ${where} order by rowid limit ${PAGE} offset ${offset}`,
+    `select rowid as rec, ${shown.map((c) => `"${c.name}"`).join(", ")} from ${table} ${where} order by rowid limit ${PAGE} offset ${offset}`,
     params,
   );
   $("pager").innerHTML =
     `${total.toLocaleString()} records · ${Math.min(offset + 1, total)}–${Math.min(offset + PAGE, total)}
     <button type="button" id="prev" ${offset ? "" : "disabled"}>Prev</button><button type="button" id="next" ${offset + PAGE < total ? "" : "disabled"}>Next</button>`;
-  $("prev")!.onclick = () => {
+  $("prev").onclick = () => {
     current.offset -= PAGE;
     browse();
   };
-  $("next")!.onclick = () => {
+  $("next").onclick = () => {
     current.offset += PAGE;
     browse();
   };
@@ -213,30 +263,32 @@ function browse(): void {
   out.innerHTML = `<div class="scroll"><table><thead><tr><th class="r">Rec</th>${shown.map((c) => `<th>${esc(c.name)}</th>`).join("")}</tr></thead><tbody>${rows
     .map(
       (r) =>
-        `<tr class="click" data-rec="${r._rec}"><td class="r">${r._rec}</td>${shown.map((c) => `<td>${esc(formatCell(r[c.name], "text"))}</td>`).join("")}</tr>`,
+        `<tr class="click" data-rec="${r.rec}"><td class="r">${r.rec}</td>${shown.map((c) => `<td>${esc(formatCell(r[c.name], "text"))}</td>`).join("")}</tr>`,
     )
     .join("")}</tbody></table></div><div id="detail"></div>`;
-  out.querySelectorAll<HTMLElement>("tr.click").forEach((tr) => {
-    tr.onclick = () => showRecord(table, Number(tr.dataset.rec));
-  });
+  for (const tr of out.querySelectorAll<HTMLElement>("tr.click")) {
+    tr.onclick = () => showRecord(table, Number(tr.getAttribute("data-rec")));
+  }
 }
 
 function showRecord(table: string, rec: number): void {
-  const [row] = all(db, `select * from ${table} where rowid = ?`, [rec]);
-  const items = Object.entries(row).filter(([, v]) => v != null && String(v).trim() !== "");
+  const [row] = all<Record<string, unknown>>(db, `select * from ${table} where rowid = ?`, [rec]);
+  const items = Object.entries(row ?? {}).filter(([, v]) => v != null && String(v).trim() !== "");
   $("detail").innerHTML =
     `<h3>${table} record ${rec}</h3><dl class="detail">${items.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
   $("detail").scrollIntoView({ behavior: "smooth" });
 }
 
 // --------------------------------------------------------------- tabs
-document.querySelectorAll<HTMLButtonElement>("nav button").forEach((b) => {
+for (const b of document.querySelectorAll<HTMLButtonElement>("nav button")) {
   b.onclick = () => {
-    document.querySelectorAll("nav button").forEach((x) => x.classList.toggle("active", x === b));
-    $("reports-view").hidden = b.dataset.view !== "reports";
-    $("browse-view").hidden = b.dataset.view !== "browse";
+    for (const x of document.querySelectorAll("nav button")) {
+      x.classList.toggle("active", x === b);
+    }
+    $("reports-view").hidden = b.getAttribute("data-view") !== "reports";
+    $("browse-view").hidden = b.getAttribute("data-view") !== "browse";
   };
-});
+}
 
 start().catch((e: Error) => {
   $("status").textContent = e.message;
