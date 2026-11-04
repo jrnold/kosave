@@ -107,3 +107,18 @@ repos:
         types_or: [python, toml]
         pass_filenames: false
         stages: [pre-push]
+
+  - repo: local
+    hooks:
+      - id: panache-format
+        name: panache format (Quarto, R Markdown, Markdown)
+        entry: panache format
+        language: python
+        additional_dependencies: [panache-cli==3.17.0]
+        files: \.(qmd|Rmd|md)$
+      - id: panache-lint
+        name: panache lint
+        entry: panache lint
+        language: python
+        additional_dependencies: [panache-cli==3.17.0]
+        files: \.(qmd|Rmd|md)$
