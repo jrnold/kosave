@@ -1,0 +1,18 @@
+{
+  "name": "kosave-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild app/src/app.ts --bundle --format=esm --target=es2022 --outfile=app/dist/app.js && mkdir -p app/dist && cp node_modules/sql.js/dist/sql-wasm.js node_modules/sql.js/dist/sql-wasm.wasm app/dist/",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test app/src/reports.test.ts",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/sql.js": "^1.4.9",
+    "esbuild": "^0.25.0",
+    "sql.js": "^1.13.0",
+    "typescript": "^5.6.0"
+  }
+}

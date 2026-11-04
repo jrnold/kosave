@@ -1,0 +1,20 @@
+schema: '2.0'
+stages:
+  sqlite:
+    cmd: uv run --with dbfread python scripts/build_sqlite.py 
+      data/kosave/orig/DATABASE data/kosave.sqlite
+    deps:
+    - path: data/kosave/orig/DATABASE
+      hash: md5
+      md5: edddf5e17a1b39d47863b00b2647d84f.dir
+      size: 17892605
+      nfiles: 148
+    - path: scripts/build_sqlite.py
+      hash: md5
+      md5: 32165804491dcb558a4a69749727c7e2
+      size: 1782
+    outs:
+    - path: data/kosave.sqlite
+      hash: md5
+      md5: abe2c46f667ab8762e8a9c293dc6a8bb
+      size: 6086656

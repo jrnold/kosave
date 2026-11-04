@@ -1,0 +1,10 @@
+stages:
+  # Reads the dBASE IV tables (and their .DBT memo files) straight from the original
+  # distribution, so the REMARKS memo text is kept.
+  sqlite:
+    cmd: uv run --with dbfread python scripts/build_sqlite.py data/kosave/orig/DATABASE data/kosave.sqlite
+    deps:
+    - data/kosave/orig/DATABASE
+    - scripts/build_sqlite.py
+    outs:
+    - data/kosave.sqlite
