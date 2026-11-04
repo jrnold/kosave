@@ -122,3 +122,21 @@ repos:
         language: python
         additional_dependencies: [panache-cli==3.17.0]
         files: \.(qmd|Rmd|md)$
+
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v0.6.1
+    hooks:
+      - id: biome-check
+        additional_dependencies: ["@biomejs/biome@2.6.3"]
+        args: [--error-on-warnings]
+        files: \.(jsx?|tsx?|c(js|ts)|m(js|ts)|css|astro)$
+
+  - repo: local
+    hooks:
+      - id: tsc
+        name: tsc --noEmit
+        entry: npx --no-install tsc --noEmit
+        language: system
+        files: (\.(tsx?|c?m?ts)|tsconfig[^/]*\.json)$
+        pass_filenames: false
+        stages: [pre-push]
