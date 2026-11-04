@@ -8,7 +8,7 @@
 #              key:NAME presses a key, type:TEXT types text. e.g. '2 type:25 key:Return'
 #   KEYS_WAIT  seconds to wait before the first key (default 8)
 #   SHOT_AT    space-separated seconds after start at which to save /work/shot-<s>.png
-#   GUI        set to 1 to serve the display at http://localhost:6080/vnc.html (publish -p 6080:6080)
+#   GUI        set to 1 to serve the display at http://localhost:6080/vnc.html (publish -p 127.0.0.1:6080:6080)
 #   TIMEOUT    kill DOSBox-X after this many seconds (default 120; 0 = never, the default with GUI)
 set -euo pipefail
 C=/opt/kosave/c
