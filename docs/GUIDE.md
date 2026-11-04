@@ -30,29 +30,29 @@ For definition purposes, there are two data bases, the Ardennes Campaign Simulat
 
 Each file consists of a number of records. For the Unit Location, Unit Data and Unit Inventory files, there is one record for each unit for each day. The TO&E Data has a record for every unit, the Air Data has a record for every sortie or group of sorties, the Weapons Data has a record for every weapon, the Reference Data was a file for every "source", and the Bibliography Data has a record for every source referenced for the data base. The unit status type files, although all tracking the same units, were broken into three separate files for ease of handling and data manipulation. Each file consist of a number of records where data will be inputted into them as required. The files, with the number of fields in each record, are listed below.
 
-| Group | File | Fields |
-|---|---|---|
-| Unit status | Unit Location Data | 58 |
-| Unit status | Unit Data | 109 |
-| Unit status | Unit Inventory Data | 134 |
-| Support data | TO&E Data | 117 |
-| Support data | Weapons Data | 52 |
-| Other | Air Data | 12 |
-| Source | Reference Data | 82 |
-| Source | Bibliography | 4 |
+  | Group        | File                | Fields |
+  | ------------ | ------------------- | ------ |
+  | Unit status  | Unit Location Data  | 58     |
+  | Unit status  | Unit Data           | 109    |
+  | Unit status  | Unit Inventory Data | 134    |
+  | Support data | TO&E Data           | 117    |
+  | Support data | Weapons Data        | 52     |
+  | Other        | Air Data            | 12     |
+  | Source       | Reference Data      | 82     |
+  | Source       | Bibliography        | 4      |
 
 Attachment 4 contains a list of all the fields used in the data base. Not all of these fields are referenced in the menus (the source of the count above). The following fields are in the data base but do not appear in the input, edit or view screens of the data base:
 
-| File | Field |
-|---|---|
-| UNITLOC | UNIT_SIZE |
-| UNITDATA | UNIT_SIZE |
-| UNITDATA | PARENTUNIT |
-| INVENTOR | UNIT_SIZE |
-| TOE | UNIT_SIZE |
-| TOE | SUPPLY_TNS |
-| WPNS | LTHLAREA2 |
-| WPNS | LTHLAREA2A |
+  | File     | Field      |
+  | -------- | ---------- |
+  | UNITLOC  | UNIT_SIZE  |
+  | UNITDATA | UNIT_SIZE  |
+  | UNITDATA | PARENTUNIT |
+  | INVENTOR | UNIT_SIZE  |
+  | TOE      | UNIT_SIZE  |
+  | TOE      | SUPPLY_TNS |
+  | WPNS     | LTHLAREA2  |
+  | WPNS     | LTHLAREA2A |
 
 The four "UNIT_SIZE" fields are used for sorting the data base. The other four fields are left over from previous revisions and are not used.
 
@@ -346,16 +346,16 @@ For the Kursk Database, all casualty reports are assumed to be as of 1800 hours 
 
 A list of which strength calculation methodology the reports use is listed below. For the Kursk data base, only those reports that deal with "end of day" strength" should be used. The beginning of the day strength reports should only be used for the Ardennes German data.
 
-| No. | Report | Strength used |
-|---|---|---|
-| 1 | CASSUM | End-of-day strength |
-| 2 | MEDRPT | End-of-day strength |
-| 3 | DELTACAS | End-of-day strength |
-| 4 | BIGBAMBI | End-of-day strength |
-| 5 | NAZIDCAS | Beginning-of-day strength |
-| 6 | UTOTCAS | Beginning-of-day strength |
-| 7 | UTOTCAS2 | End-of-day strength |
-| 8 | UTCNDNBI | Beginning-of-day strength |
+  | No. | Report   | Strength used             |
+  | --- | -------- | ------------------------- |
+  | 1   | CASSUM   | End-of-day strength       |
+  | 2   | MEDRPT   | End-of-day strength       |
+  | 3   | DELTACAS | End-of-day strength       |
+  | 4   | BIGBAMBI | End-of-day strength       |
+  | 5   | NAZIDCAS | Beginning-of-day strength |
+  | 6   | UTOTCAS  | Beginning-of-day strength |
+  | 7   | UTOTCAS2 | End-of-day strength       |
+  | 8   | UTCNDNBI | Beginning-of-day strength |
 
 Sample copies of these reports are provided in Attachment 3. They are described below:
 
@@ -445,16 +445,16 @@ It is expected that only the organization developing the data base will have a n
 
 The data base can be sorted by using the menu bar in browse mode. This should not be done by someone with only a casual acquaintance with the software. The records within the data base are sorted in the following manner on the listed fields. All fields are sorted in ascending order.
 
-| File | Sorted on (ascending) |
-|---|---|
-| WEAPONS | NATION, CATEGORY, WPN_NAME |
-| TO&E | NATION, UNIT_SIZE, UNIT_NAME |
-| INVENTORY | NATION, UNIT_SIZE, UNIT_NAME, DATE, PAGE |
-| UNIT DATA | NATION, UNIT_SIZE, UNIT_NAME, DATE |
-| LOCATION | NATION, UNIT_SIZE, UNIT_NAME, DATE |
-| REFERENCE | SOURCES |
-| AIR | NATION, DAY, UNIT, AC_NAME, SORTIES |
-| BIBLIOGRAPHY | BIBLIOG_NO |
+  | File         | Sorted on (ascending)                    |
+  | ------------ | ---------------------------------------- |
+  | WEAPONS      | NATION, CATEGORY, WPN_NAME               |
+  | TO&E         | NATION, UNIT_SIZE, UNIT_NAME             |
+  | INVENTORY    | NATION, UNIT_SIZE, UNIT_NAME, DATE, PAGE |
+  | UNIT DATA    | NATION, UNIT_SIZE, UNIT_NAME, DATE       |
+  | LOCATION     | NATION, UNIT_SIZE, UNIT_NAME, DATE       |
+  | REFERENCE    | SOURCES                                  |
+  | AIR          | NATION, DAY, UNIT, AC_NAME, SORTIES      |
+  | BIBLIOGRAPHY | BIBLIOG_NO                               |
 
 ## Attachment 1: The main menu
 
