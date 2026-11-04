@@ -1,0 +1,24 @@
+schema: '2.0'
+stages:
+  sqlite:
+    cmd: uv run --frozen python scripts/build_sqlite.py data/raw/kosave/DATABASE
+      data/kosave.sqlite
+    deps:
+    - path: data/raw/kosave/DATABASE
+      hash: md5
+      md5: edddf5e17a1b39d47863b00b2647d84f.dir
+      size: 17892605
+      nfiles: 148
+    - path: scripts/build_sqlite.py
+      hash: md5
+      md5: 33b13066303482c266de95b9f41aaa25
+      size: 1941
+    - path: uv.lock
+      hash: md5
+      md5: 0b6889f4fb20f7e50b5690c5124e53a2
+      size: 39628
+    outs:
+    - path: data/kosave.sqlite
+      hash: md5
+      md5: abe2c46f667ab8762e8a9c293dc6a8bb
+      size: 6086656

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kursk Data Base</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Kursk Data Base</h1>
+  <nav>
+    <button data-view="reports" class="active">Reports</button>
+    <button data-view="browse">Browse data</button>
+  </nav>
+  <span id="status">Loading database…</span>
+</header>
+<div id="reports-view" class="view">
+  <aside id="menu"></aside>
+  <main>
+    <div id="report-head"><p class="hint">Pick a report from the menu. The reports are ported from the dBASE IV programs distributed with the database (KOSAVE II, CAA-SR-98-7).</p></div>
+    <form id="params"></form>
+    <div id="notes"></div>
+    <div id="result"></div>
+  </main>
+</div>
+<div id="browse-view" class="view" hidden>
+  <aside id="tables"></aside>
+  <main>
+    <form id="browse-controls">
+      <input id="search" type="search" placeholder="Search all text fields">
+      <span id="pager"></span>
+    </form>
+    <div id="browse-result"></div>
+  </main>
+</div>
+<script src="dist/sql-wasm.js"></script>
+<script type="module" src="dist/app.js"></script>
+</body>
+</html>
