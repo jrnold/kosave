@@ -83,7 +83,5 @@ environment variables, and known limits (reports show on screen but can't print 
   text, so their status depends on the contract terms.
 - **dBASE IV** is Borland's copyrighted software and is not in this repo. The Docker build
   downloads your copy, which is why the image must stay local.
-- **The code** in this repo is under the MIT licence in `LICENSE`, which covers the code only.
-  The data's Zenodo record is marked CC0.
 
 Large files (`docs/DTIC_ADA360311.pdf`, the SQLite file) are tracked with DVC, not git.
