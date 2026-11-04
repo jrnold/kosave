@@ -7,6 +7,7 @@ including memo fields from the .DBT files (which the csv/ export drops).
 import sqlite3
 import sys
 from pathlib import Path
+from typing import override
 
 from dbfread import DBF, FieldParser
 
@@ -14,12 +15,14 @@ from dbfread import DBF, FieldParser
 class Parser(FieldParser):
     """Treat unparsable numerics (e.g. a lone '.') as NULL."""
 
+    @override
     def parseN(self, field, data):
         try:
             return super().parseN(field, data)
         except ValueError:
             return None
 
+    @override
     def parseF(self, field, data):
         try:
             return super().parseF(field, data)
@@ -48,7 +51,7 @@ for name in TABLES:
     marks = ",".join("?" * len(t.fields))
     rows = ([r[f.name] for f in t.fields] for r in t)
     con.executemany(
-        f'INSERT INTO "{name}" VALUES ({marks})',
+        f'INSERT INTO "{name}" VALUES ({marks})',  # noqa: S608  (name is from TABLES; values are bound)
         ([v.isoformat() if hasattr(v, "isoformat") else v for v in row] for row in rows),
     )
     print(f"{name}: {len(t)} rows, {len(t.fields)} cols")
