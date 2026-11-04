@@ -1,5 +1,5 @@
 // Report logic ported from the dBASE IV .PRG programs shipped with the Kursk Data Base
-// (data/kosave/orig/DATABASE/*.PRG). Each report keeps the program's name in `id`.
+// (data/raw/kosave/DATABASE/*.PRG). Each report keeps the program's name in `id`.
 //
 // A report is { id, menu, title, params, run(db, params) } and run() returns
 //   { notes: [string], sections: [{ heading, columns, rows, total }] }

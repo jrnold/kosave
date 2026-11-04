@@ -1,4 +1,4 @@
-"""Build kosave.sqlite from the dBASE IV files in data/kosave/orig/DATABASE,
+"""Build kosave.sqlite from the dBASE IV files in data/raw/kosave/DATABASE,
 including memo fields from the .DBT files (which the csv/ export drops).
 
     uv run --with dbfread scripts/build_sqlite.py [src_dir] [out.sqlite]
@@ -30,7 +30,7 @@ class Parser(FieldParser):
             return None
 
 
-src = Path(sys.argv[1] if len(sys.argv) > 1 else "data/kosave/orig/DATABASE")
+src = Path(sys.argv[1] if len(sys.argv) > 1 else "data/raw/kosave/DATABASE")
 out = Path(sys.argv[2] if len(sys.argv) > 2 else "data/kosave.sqlite")
 TABLES = ["AIR", "BIBLIOG", "INVENTOR", "REFERENC", "TOE", "UNITDATA", "UNITLOC", "WPNS"]
 SQLTYPE = {"C": "TEXT", "M": "TEXT", "N": "NUMERIC", "F": "REAL", "D": "TEXT", "L": "INTEGER"}
