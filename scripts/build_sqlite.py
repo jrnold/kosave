@@ -11,7 +11,7 @@ from dbfread import DBF, FieldParser
 
 
 class Parser(FieldParser):
-    """Treat unparseable numerics (e.g. a lone '.') as NULL."""
+    """Treat unparsable numerics (e.g. a lone '.') as NULL."""
 
     def parseN(self, field, data):
         try:
