@@ -20,6 +20,19 @@ This repo holds the original distribution plus three ways to use it:
   | SQLite            | All tables, including the memo fields, in one `kosave.sqlite` file.      | `scripts/`, `data/kosave.sqlite` |
   | Web reports       | The `.PRG` reports ported to TypeScript, running in a browser on sql.js. | `app/`                           |
 
+## Get the data
+
+The data is archived on Zenodo: [10.5281/zenodo.23966568](https://doi.org/10.5281/zenodo.23966568).
+It isn't in git, so download it from the repo root:
+
+```sh
+curl -L -o data/kosave.sqlite https://zenodo.org/records/23966568/files/kosave.sqlite
+curl -L -o kosave-cdrom.zip https://zenodo.org/records/23966568/files/kosave-cdrom.zip
+mkdir -p data/raw && unzip kosave-cdrom.zip -d data/raw && rm kosave-cdrom.zip
+```
+
+The web app needs only the SQLite file. The Docker image and `dvc repro` need the raw data.
+
 ## Layout
 
   | Path                      | Contents                                                                                                                                                         |
@@ -56,8 +69,7 @@ npm test                   # report tests (node --test)
 npm run typecheck
 ```
 
-The page loads `data/kosave.sqlite` with sql.js, so run `dvc pull` or `dvc repro` first if the
-file is missing. Each report keeps the name of the `.PRG` program it comes from.
+The page loads `data/kosave.sqlite` with sql.js, so [download the data](#get-the-data) first. Each report keeps the name of the `.PRG` program it comes from.
 
 ## Original dBASE IV in Docker
 
