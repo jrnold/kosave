@@ -97,4 +97,4 @@ environment variables, and known limits (reports show on screen but can't print 
 - **dBASE IV** is Borland's copyrighted software and is not in this repo. The Docker build
   downloads your copy, which is why the image must stay local.
 
-Large files (`docs/DTIC_ADA360311.pdf`, the SQLite file) are tracked with DVC, not git.
+The raw data and the SQLite file are tracked with DVC, not git. The study report PDF is in git.

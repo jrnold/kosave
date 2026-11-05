@@ -26,7 +26,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files
-        args: [--maxkb=10240]  # newly added files only; bigger files go in DVC (GitHub blocks pushes over 100 MiB)
+        args: [--maxkb=20480]  # newly added files only; bigger files go in DVC (GitHub blocks pushes over 100 MiB)
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       - id: check-illegal-windows-names
