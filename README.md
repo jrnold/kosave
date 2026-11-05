@@ -78,9 +78,10 @@ environment variables, and known limits (reports show on screen but can't print 
   Analysis Agency, so it is a US government work and in the public domain (17 U.S.C. § 105). Its
   cover page also says "Approved for public release; distribution unlimited".
 - **The database and its documentation** were built by The Dupuy Institute under contract
-  DASW01-95-C-0068 and delivered to CAA. They were released with the study on the KOSAVE II CD-ROM.
-  Section 105 covers works by federal employees, not contractors, and the files carry no licence
-  text, so their status depends on the contract terms.
+  DASW01-95-C-0068, delivered to CAA, and released with the study on the KOSAVE II CD-ROM (DTIC
+  accession ADM001006). This repo treats them as public domain:
+  [The Dupuy Institute lists](https://dupuyinstitute.org/products/other-databases/kursk/) the March
+  1996 version as owned by CAA and in the public domain.
 - **dBASE IV** is Borland's copyrighted software and is not in this repo. The Docker build
   downloads your copy, which is why the image must stay local.
 
